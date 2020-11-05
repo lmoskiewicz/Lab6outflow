@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lab 6</title>
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+
+        <!-- Load animation tweening library requirement for CanvasFlowMapLayer -->
+        <script src="https://unpkg.com/@tweenjs/tween.js@18.5.0/dist/tween.umd.js"></script>
+
+        <!-- then load CanvasFlowMapLayer -->
+        <script src="CanvasFlowmapLayer.js"></script>
+
+        <script type="text/javascript" src="cookout.js"></script>
+
+        <link href='https://fonts.googleapis.com/css?family=Acme' rel='stylesheet'>
+
+        <style type="text/css">
+          html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            }
+
+          #map {
+            min-height: 100%;
+            }
+
+            .title {
+              padding: 6px 8px;
+              font-family: 'Acme';font-size: 22px;
+              background: white;
+              background: rgba(255,255,255,0.8);
+              box-shadow: 0 0 15px rgba(0,0,0,0.2);
+              border-radius: 5px;
+          }
+
+        </style>
+
+    </head>
+
+    <body>
+        <div id="map"></div>
+
+        <script type="text/javascript">
+
+          var map = L.map('map', {
+              center: [38.16, -96.96],
+              zoom: 4.2
+          });
+
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png', {
+               attribution: '@ <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+
+          L.canvasFlowmapLayer(data2, { //data is the variable name I used for defining the cook.js data
+              originAndDestinationFieldIds: {
+                originUniqueIdField: 'GEOID_A',  //origin ID, use GEOID_B if you want to reverse the flow
+                originGeometry: { //origin coordinates
+                  x: 'A_lon',
+                  y: 'A_lat'
+                },
+                destinationUniqueIdField: 'GEOID_B', //destination ID
+                destinationGeometry: { //destination coordinates
+                  x: 'B_lon',
+                  y: 'B_lat'
+                }
+              },
+
+              canvasBezierStyle: {
+            type: 'classBreaks',
+            field: 'Flow_A2B',
+            classBreakInfos: [{
+              classMinValue: 0,
+              classMaxValue: 999,
+              symbol: {
+                strokeStyle: '#ecb3ff',
+                lineWidth: 0.5,
+                lineCap: 'round',
+                shadowColor: '#ecb3ff',
+                shadowBlur: 1.5
+              }
+            }, {
+              classMinValue: 1000,
+              classMaxValue: 1999,
+              symbol: {
+                strokeStyle: '#cc33ff',
+                lineWidth: 1.25,
+                lineCap: 'round',
+                shadowColor: '#cc33ff',
+                shadowBlur: 1.5
+              }
+            }, {
+              classMinValue: 2000,
+              classMaxValue: 2999,
+              symbol: {
+                strokeStyle: '#8600b3',
+                lineWidth: 2.5,
+                lineCap: 'round',
+                shadowColor: '#8600b3',
+                shadowBlur: 1.5
+              }
+            }, {
+              classMinValue: 3000,
+              classMaxValue: 3999,
+              symbol: {
+                strokeStyle: '#4d0066',
+                lineWidth: 5,
+                lineCap: 'round',
+                shadowColor: '#4d0066',
+                shadowBlur: 1.5
+              }
+            }, {
+              classMinValue: 4000,
+              classMaxValue: 10000,
+              symbol: {
+                strokeStyle: '#13001a',
+                lineWidth: 10,
+                lineCap: 'round',
+                shadowColor: '#13001a',
+                shadowBlur: 1.5
+              }
+            }],
+            // the layer will use the defaultSymbol if a data value doesn't fit
+            // in any of the defined classBreaks
+            defaultSymbol: {
+              strokeStyle: '#e7e1ef',
+              lineWidth: 0.5,
+              lineCap: 'round',
+              shadowColor: '#e7e1ef',
+              shadowBlur: 1.5
+            },
+          },
+
+              // Options to customize the flow map, check out the link below
+              // https://github.com/jwasilgeo/Leaflet.Canvas-Flowmap-Layer#options-and-property-summary
+              pathDisplayMode: 'all',
+              animationStarted: true,
+              animationEasingFamily: 'Cubic',
+              animationEasingType: 'In',
+              animationDuration: 2000
+            }).addTo(map);
+
+            var title = L.control({position: 'topright'}); // position of the title
+
+            title.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'title'); // create a div with a class "title"
+                this._div.innerHTML = "<h3>TOP 10 Outflow from Cook County, Illinois to Counties Outside of Illinois</h3>";  // Title text, may use html to customize
+                return this._div;
+            };
+
+            title.addTo(map);
+
+        </script>
+   </body>
+</html>
